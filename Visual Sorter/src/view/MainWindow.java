@@ -40,7 +40,6 @@ public class MainWindow extends Application {
 
 	@Override
 	public void init() throws Exception {
-		System.out.println(Thread.currentThread().getName());
 		// order of method calls are for a reason
 		// initCheckBox();
 		// initRadioButtons();
