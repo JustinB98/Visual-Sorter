@@ -24,6 +24,10 @@ import utility.KeyboardActions;
 import utility.LegendGetter;
 import utility.Utility;
 
+/**
+ * @author Justin Behrman
+ *
+ */
 public class MainWindow extends Application {
 
 	/* UI */
