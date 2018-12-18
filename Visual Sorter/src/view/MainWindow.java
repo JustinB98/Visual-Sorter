@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import model.Legend;
 import model.TitledBorderPane;
 import panes.ControlPane;
+import panes.IterationPane;
 import panes.TutorialControlPane;
 import utility.FileUtility;
 import utility.Global;
@@ -36,9 +37,10 @@ public class MainWindow extends Application {
 	private Pane legend = new Pane();
 	private ControlPane controlPane;
 	private TutorialControlPane tutControlPane;
+	private IterationPane iterationPane;
 	private Pane standardSortingCenter;
 	private Pane standardSortingBottom;
-
+	
 	/* Other */
 	private boolean standardSorting = true;
 
@@ -51,8 +53,9 @@ public class MainWindow extends Application {
 		initProperties();
 		initPropertyListeners();
 		// linePane = new HBox(1);
-		controlPane = new ControlPane(start, stop);
-		tutControlPane = new TutorialControlPane(start, stop);
+		iterationPane = new IterationPane();
+		controlPane = new ControlPane(iterationPane::refreshText);
+		tutControlPane = new TutorialControlPane();
 		initControlPane();
 		initOther();
 	}
@@ -169,7 +172,7 @@ public class MainWindow extends Application {
 
 	private void initRoot() {
 		TitledBorderPane topBorderPane = new TitledBorderPane("Controls", controlPane);
-		HBox bottom = new HBox(topBorderPane, legend);
+		HBox bottom = new HBox(topBorderPane, legend, iterationPane);
 		bottom.setAlignment(Pos.CENTER);
 		this.standardSortingBottom = bottom;
 		this.standardSortingCenter = scrollingLinePane();

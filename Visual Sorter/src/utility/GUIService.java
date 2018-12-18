@@ -4,16 +4,15 @@ import java.util.Objects;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import model.Accepter;
 
 public class GUIService extends Service<Void> {
 
-	private Accepter accepter;
+	private Runnable runnable;
 
 	private static int thread_count;
 
-	public GUIService(Accepter accepter) {
-		this.accepter = Objects.requireNonNull(accepter, "Accepter value can't be null!");
+	public GUIService(Runnable runnable) {
+		this.runnable = Objects.requireNonNull(runnable, "Accepter value can't be null!");
 	}
 
 	@Override
@@ -25,7 +24,7 @@ public class GUIService extends Service<Void> {
 				Utility.resetLineColors();
 				long startTime = System.nanoTime();
 				if (Global.len() != 0)
-					accepter.accept();
+					runnable.run();
 				else
 					Global.START.set(false);
 				long endTime = System.nanoTime();

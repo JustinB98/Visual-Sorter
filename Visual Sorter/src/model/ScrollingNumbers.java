@@ -14,7 +14,7 @@ public class ScrollingNumbers extends HBox {
 	private int min, max, currentNumber;
 	private TextField outputNumber;
 	private Button upBtn, downBtn;
-	private Accepter action;
+	private Runnable action;
 	private final double HEIGHT = 60;
 	private final double BTN_WIDTH = 30;
 	// width leaves room for triple digits 
@@ -112,7 +112,7 @@ public class ScrollingNumbers extends HBox {
 
 	private void performAction() {
 		if (action != null) {
-			action.accept();
+			action.run();
 		}
 	}
 
@@ -131,7 +131,7 @@ public class ScrollingNumbers extends HBox {
 		return currentNumber;
 	}
 
-	public void setAction(Accepter action) {
+	public void setAction(Runnable action) {
 		this.action = action;
 	}
 

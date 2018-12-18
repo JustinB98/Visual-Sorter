@@ -27,9 +27,10 @@ public class TutorialControlPane extends VBox {
 	private TutorialSortingManager sorter;
 	private BooleanProperty start;
 
-	public TutorialControlPane(BooleanProperty start, BooleanProperty stop) {
-		this.start = start;
-		sorter = new TutorialSortingManager(stop, start, stepText.textProperty());
+	public TutorialControlPane() {
+		this.start = Global.START;
+		sorter = TutorialSortingManager.getInstance();
+		sorter.setTextProperty(stepText.textProperty());
 		Pane sub = getSubRoot();
 		HBox textPane = new HBox(stepText);
 		textPane.setAlignment(Pos.CENTER);
@@ -46,6 +47,9 @@ public class TutorialControlPane extends VBox {
 		subPane.setAlignment(Pos.CENTER);
 		TitledBorderPane titledSubPane = new TitledBorderPane("Controls", subPane);
 		titledSubPane.setAlignment(Pos.CENTER);
+		// for some reason, wrapping this pane
+		// in an hbox makes it so the control pane
+		// doesn't stretch across the entire window
 		HBox subRoot = new HBox(titledSubPane);
 		subRoot.setAlignment(Pos.CENTER);
 		return subRoot;

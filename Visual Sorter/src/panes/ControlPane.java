@@ -24,11 +24,14 @@ public class ControlPane extends HBox {
 	private HBox btnPane;
 	private SortingManager sorter;
 	private BooleanProperty start, stop;
-
-	public ControlPane(BooleanProperty start, BooleanProperty stop) {
-		this.start = start;
-		this.stop = stop;
-		sorter = new SortingManager(fastBox.selectedProperty(), stop, start);
+	private Runnable onStop;
+	
+	public ControlPane(Runnable onStop) {
+		this.onStop = onStop;
+		this.start = Global.START;
+		this.stop = Global.STOP;
+		sorter = SortingManager.getInstance();
+		sorter.setFastSort(fastBox.selectedProperty());
 		initPropertyListeners();
 	}
 
@@ -37,6 +40,7 @@ public class ControlPane extends HBox {
 			if (!newV) {
 				sorter.resumeNoMatterWhat();
 				setPauseBtnText();
+				onStop.run();
 			}
 			toggleBtnPane(newV);
 			// don't mind this line
@@ -153,7 +157,7 @@ public class ControlPane extends HBox {
 				"An advanced sort algorithm.\nAn improvement to the insertion sort."
 						+ "\nBrings lower values to the bottom and higher values to the top."
 						+ "\nUses intervals (h) to swap each element."
-						+ "\nWhen the interval(h) is one, then an insertion sort is done\nO(N(logN))\u00B2");
+						+ "\nWhen the interval(h) is one, then an insertion sort is done\nO(N(logN)\u00B2)");
 		Utility.installTooltip(quickRadBtn,
 				"Most frequently used sorting algorithm." + "\nWorks by partitioning sections of the"
 						+ "\ndata using a pivot until the array is in order"

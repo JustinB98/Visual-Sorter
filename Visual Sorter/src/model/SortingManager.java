@@ -11,19 +11,40 @@ import utility.Utility;
  */
 public class SortingManager {
 
+	private static SortingManager instance = new SortingManager();
+	
 	private VisualLine[] lines = Global.LINES;
 	private BooleanProperty fastSort, stop, start;
 	private boolean pause;
 
 	private final int MERGE_DELAY = 100;
 
-	public SortingManager(BooleanProperty fastSort, BooleanProperty stop, BooleanProperty start) {
-		this.fastSort = fastSort;
-		this.stop = stop;
-		this.start = start;
+	private int lastIterations;
+	private int expectedIterations;
+
+	private SortingManager() {
+		this.start = Global.START;
+		this.stop = Global.STOP;
 	}
 
+	public void setFastSort(BooleanProperty fastSort) {
+		this.fastSort = fastSort;
+	}
+	
+	public static SortingManager getInstance() {
+		return instance;
+	}
+	
+	public int getLastIterations() {
+		return lastIterations;
+	}
+	
+	public int getExpectedIterations() {
+		return expectedIterations;
+	}
+	
 	public void selectionSort() {
+		lastIterations = 0;
 		int min; // index where the minimum value is found
 		int len = Global.len();
 		for (int out = 0; out < len - 1 && !stop.get(); out++) {
@@ -34,6 +55,7 @@ public class SortingManager {
 					min = in;
 				}
 				afterSelectionLoop(min, in);
+				++lastIterations;
 			}
 			swap(out, min);
 			lines[out].setStroke(Color.BLUE);
@@ -42,6 +64,7 @@ public class SortingManager {
 		lines[len - 1].setStroke(Color.BLUE);
 		reset();
 		// Platform.runLater(this::setHeights);
+		expectedIterations = Global.len() * Global.len();
 	}
 
 	private void afterSelectionLoop(int min, int in) {
@@ -54,6 +77,7 @@ public class SortingManager {
 	}
 
 	public void bubbleSort() {
+		lastIterations = 0;
 		int len = Global.len();
 		for (int out = len - 1; out >= 1 && !stop.get(); out--) {
 			outerLoopStop();
@@ -67,16 +91,19 @@ public class SortingManager {
 				innerLoopStop();
 				lines[in].setStroke(Color.BLACK);
 				lines[in + 1].setStroke(Color.BLACK);
+				++lastIterations;
 			}
 			lines[out].setStroke(Color.BLUE);
 			draw();
 		}
 		lines[0].setStroke(Color.BLUE);
 		reset();
+		expectedIterations = Global.len() * Global.len();
 		// Platform.runLater(this::setHeights);
 	}
 
 	public void insertionSort() {
+		lastIterations = 0;
 		int in;
 		// int out; // first item not sorted, to the right of the divide
 		final int len = Global.len();
@@ -92,16 +119,20 @@ public class SortingManager {
 			while (in > 0 && lines[in - 1].compareTo(temp) > 0 && !stop.get()) {
 				changed = true;
 				in = innerInsertionSortWhileLoop(in, out);
+				++lastIterations;
 			}
 			blackenLines(out); // without this, if most are in order, all the
 								// lines would be green
-			if (!changed)
+			if (!changed) {
+				++lastIterations;
 				innerLoopStop();
+			}
 			lines[in].setHeight(temp);
 			draw();
 		}
 		colorLines();
 		reset();
+		expectedIterations = Global.len() * Global.len();
 		// Platform.runLater(this::setHeights);
 	}
 
@@ -117,25 +148,26 @@ public class SortingManager {
 		return in;
 	}
 
-	private int mergeSortN;
-	
 	public void mergeSort() {
-		mergeSortN = 0;
+		int len = Global.len();
+		lastIterations = 0;
 		double[] workSpace = new double[Global.len()];
 		recMergeSort(workSpace, 0, Global.len() - 1); // range that will be
 														// sorted
 		colorLines();
 		reset();
-		System.out.println("Merge Sort: " + mergeSortN);
+		// https://stackoverflow.com/questions/3305059/how-do-you-calculate-log-base-2-in-java-for-integers
+		expectedIterations = (int) (len * (Math.log(len) / Math.log(2)));
+		System.out.println(expectedIterations);
+		// System.out.println("Merge Sort: " + mergeSortN);
 	}
 
 	private void recMergeSort(double[] workSpace, int lowerBound, int upperBound) {
 		if (lowerBound == upperBound) { // special case, only 1 element
-			++mergeSortN;
+			++lastIterations;
 			return;
 		} else {
 			if (!stop.get()) {
-				++mergeSortN;
 				int mid = ( upperBound + lowerBound ) / 2;
 				// lines[lowerBound].setStroke(Color.SIENNA);
 				// lines[upperBound].setStroke(Color.SIENNA);
@@ -173,7 +205,7 @@ public class SortingManager {
 		final int n = upperBound - lowerBound + 1; // # of items
 
 		while (lowPtr <= mid && highPtr <= upperBound && !stop.get()) {
-			++mergeSortN;
+			++lastIterations;
 			// Utility.stopTime(100);
 			if (lines[lowPtr].compareTo(lines[highPtr]) < 0) {
 				lines[lowPtr].setStroke(Color.RED);
@@ -197,13 +229,13 @@ public class SortingManager {
 
 		while (lowPtr <= mid && !stop.get()) {
 			// Utility.stopTime(100);
-			++mergeSortN;
+			++lastIterations;
 			workSpace[j++] = lines[lowPtr++].getHeight();
 		}
 
 		while (highPtr <= upperBound && !stop.get()) {
 			// Utility.stopTime(100);
-			++mergeSortN;
+			++lastIterations;
 			workSpace[j++] = lines[highPtr++].getHeight();
 		}
 		outerLoopStop();
@@ -218,7 +250,7 @@ public class SortingManager {
 
 	private void fillInArrayFromWorkSpace(double[] workSpace, int lowerBound, int n) {
 		for (int j = 0; j < n; ++j) {
-			++mergeSortN;
+			++lastIterations;
 			// lines[lowerBound + j] = workSpace[j];
 			lines[lowerBound + j].setHeight(workSpace[j]);
 			// lines[lowerBound + j].setStroke(Color.PURPLE);
@@ -233,13 +265,11 @@ public class SortingManager {
 		}
 	}
 
-	private int shellSortN;
-
 	public void shellSort() {
-		shellSortN = 0;
+		lastIterations = 0;
 		int inner, outer;
 		double temp;
-		int len = Global.len();
+		final int len = Global.len();
 		int h = 1; // by default
 		while (h <= len / 3) {
 			h = h * 3 + 1;
@@ -259,7 +289,7 @@ public class SortingManager {
 					changed = true;
 					innerShellWhileLoop(inner, outer, h);
 					inner -= h;
-					++shellSortN;
+					++lastIterations;
 				} // end while
 					// if the shell sort didn't go through the while loop at
 					// least once
@@ -267,8 +297,8 @@ public class SortingManager {
 				if (!changed) {
 					innerLoopStop();
 					lines[innerIndex].setStroke(Color.BLACK);
+					++lastIterations;
 				}
-				++shellSortN;
 				lines[outer].setStroke(Color.BLACK);
 				lines[inner].setHeight(temp);
 				draw();
@@ -278,7 +308,8 @@ public class SortingManager {
 		} // end while
 		colorLines();
 		reset();
-		System.out.println("Shell Sort O(" + shellSortN + ")");
+		// System.out.println("Shell Sort O(" + shellSortN + ")");
+		expectedIterations = (int) (len * (Math.pow(Math.log(len) / Math.log(2), 2)));
 	} // end shell sort
 
 	private void innerShellWhileLoop(int inner, int outer, int h) {
@@ -291,19 +322,19 @@ public class SortingManager {
 		lines[inner - h].setStroke(Color.BLACK);
 	}
 
-	private int quickSortN;
-
 	public void quickSort() {
-		quickSortN = 0;
-		recQuickSort(0, Global.len() - 1);
-		System.out.println("Quick Sort O(" + quickSortN + ")");
+		final int len = Global.len();
+		lastIterations = 0;
+		recQuickSort(0, len - 1);
+		// System.out.println("Quick Sort O(" + quickSortN + ")");
 		colorLines();
 		reset();
+		expectedIterations = (int) (len * (Math.log(len) / Math.log(2)));
 	}
 
 	public void recQuickSort(int left, int right) {
 		if (stop.get()) {
-			++quickSortN;
+			++lastIterations;
 			return;
 		}
 		if (right - left <= 0) { // left >= right?
@@ -320,7 +351,7 @@ public class SortingManager {
 			innerLoopStop(20);
 			lines[left].setStroke(Color.BLACK);
 			lines[right].setStroke(Color.BLACK);
-			++quickSortN;
+			++lastIterations;
 		}
 	}
 
@@ -337,7 +368,7 @@ public class SortingManager {
 				lines[left].setStroke(Color.CHOCOLATE);
 				lines[right].setStroke(Color.CHOCOLATE);
 				draw();
-				++quickSortN;
+				++lastIterations;
 			}
 			while (rightPtr > left && lines[--rightPtr].compareTo(pivot) >= 0 && !stop.get()) {
 				lines[rightPtr].setStroke(Color.RED);
@@ -346,7 +377,7 @@ public class SortingManager {
 				lines[left].setStroke(Color.CHOCOLATE);
 				lines[right].setStroke(Color.CHOCOLATE);
 				draw();
-				++quickSortN;
+				++lastIterations;
 			}
 			if (leftPtr >= rightPtr) {
 				break;

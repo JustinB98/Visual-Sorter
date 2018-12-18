@@ -14,17 +14,20 @@ import utility.Utility;
  */
 public class TutorialSortingManager {
 
+	private static TutorialSortingManager instance = new TutorialSortingManager();
+	
 	private VisualLine[] lines = Global.LINES;
-	private BooleanProperty stop, start;
+	private BooleanProperty stop = Global.STOP;
+	private BooleanProperty start = Global.START;
 	private StringProperty textProperty;
 	private boolean pause = true;
 
-	public TutorialSortingManager(BooleanProperty stop, BooleanProperty start, StringProperty text) {
-		this.stop = stop;
-		this.start = start;
-		this.textProperty = text;
-	}
+	private TutorialSortingManager() {}
 
+	public static TutorialSortingManager getInstance() {
+		return instance;
+	}
+	
 	public void setTextProperty(StringProperty text) {
 		textProperty = text;
 	}
@@ -379,6 +382,7 @@ public class TutorialSortingManager {
 		// textProperty.setValue("");
 		textProperty.set("");
 		textProperty.set(text);
+		System.out.println(text);
 		while (pause && !stop.get()) {
 			// pause will change soon and we don't want pause to be set and used
 			// at the same time, so a pause in the thread should help that
