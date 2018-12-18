@@ -10,3 +10,7 @@ This means that I can't really achieve the dream to have this project just be an
 More info: https://stackoverflow.com/questions/5291852/writing-to-file-inside-package-java
 But it IS possible to read from jar files... so there's that... The method that does that is: utility.FileUtility.setDataFromFile();
 Also the res folder is pretty useless as of now
+
+************** 12/18/2018 **************
+Added iteration counter and cleaned up some of the code. 
+Removed Accepter.java and replaced it with java.util.Runnable.
